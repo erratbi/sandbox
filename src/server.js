@@ -21,6 +21,7 @@ const data = fs.readFileSync(resolve(__dirname, '../data/data2.json'));
 const movies = JSON.parse(data);
 
 app.get('/api/movie', (req, res) => {
+	res.header('Access-Control-Allow-Origin', '*');
 	const list = _.sampleSize(movies, 30);
 	res.json({ movies: list });
 });
