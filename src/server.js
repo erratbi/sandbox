@@ -20,8 +20,13 @@ app.use(cors(corsOptions));
 const data = fs.readFileSync(resolve(__dirname, '../data/data2.json'));
 const movies = JSON.parse(data);
 
-app.get('/api/movie', (req, res) => {
+app.use(function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
+	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+	next();
+});
+
+app.get('/api/movie', (req, res) => {
 	const list = _.sampleSize(movies, 30);
 	res.json({ movies: list });
 });
