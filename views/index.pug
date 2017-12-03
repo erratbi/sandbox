@@ -1,0 +1,53 @@
+extends layout
+
+block content
+    h1 #{title}
+    p #{description}
+    div(id="video_player")
+    div(class="server-list")
+    script(src="https://code.jquery.com/jquery-3.2.1.min.js")
+    script(src="/js/player/jwplayer.js")
+    script.
+        jwplayer.key = 'DDP0ju5zV2H5ea09/C59TiTQJdilYzXgFsp2Xw==';
+        const hash = '#{slug}';
+        const player = jwplayer('video_player');
+        const config = {
+            width: '100%',
+            height: '100%',
+            aspectratio: '16:9',
+            autostart: false,
+            controls: true,
+            primary: 'html5',
+            abouttext: 'arab-movies.to',
+            aboutlink: 'https://arab-movies.to',
+            image: "#{cover}",
+            logo: {
+                file: '',
+                link: 'https://arab-movies.to',
+                position: 'top-left'
+            },
+            sharing: { sites: ['facebook', 'twitter', 'email']}
+        };
+        player.setup(config);
+        const loadServer = main =>  {
+            if($('#sv-'+main).length) $('#sv-'+main).click();
+            else {
+                $('.sv-item').each(() => {
+                    if($(this).hasClass('faulty')) continue;
+                    $(this).click();
+                })
+            }
+
+        }
+        const getEpisodes = (slug) => {
+            $.ajax({
+                url: '/ajax/episodes/'+slug,
+                method: 'GET',
+                dataType: 'json',
+                async: false,
+                success: resp => $('.servers').html(resp.html)
+            })
+        }
+        $(() => {
+            getEpisodes('#{slug}');
+        });

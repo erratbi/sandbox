@@ -1,0 +1,26 @@
+extends layout
+
+block content
+    div(id="video_player")
+    script(src="/js/player/jwplayer.js")
+    script.
+        const player = jwplayer('video_player');
+        const config = {
+            width: '100%',
+            height: '100%',
+            aspectratio: '16:9',
+            autostart: false,
+            controls: true,
+            primary: 'html5',
+            abouttext: 'arab-movies.to',
+            aboutlink: 'https://arab-movies.to',
+            image: #{cover},
+            logo: {
+                file: '',
+                link: 'https://arab-movies.to',
+                position: 'top-left'
+            },
+            sharing: { sites: ['facebook', 'twitter', 'email']}
+        };
+        player.setup(config);
+        player.load(file);

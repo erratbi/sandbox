@@ -1,0 +1,21 @@
+body {
+	font-size: 12px;
+	background-color: #343434;
+	color: #fefefe;
+}
+
+#video-player {
+	width: 100%;
+	height: 100%;
+	background-color: #111;
+}
+#watch-player {
+	width: 1200px;
+	height: 725px;
+	margin: 10px auto;
+}
+#watch-player iframe {
+	width: 100%;
+	height: 100%;
+	background-color: #111;
+}
