@@ -7,11 +7,16 @@ import _ from 'lodash';
 import { resolve } from 'path';
 import cors from 'cors';
 
+const corsOptions = {
+	origin: 'http://localhost:3000',
+	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
 const app = express();
 app.set('view engine', 'pug');
 app.use(bodyParser.json());
 app.use(express.static('public'));
-app.use(cors());
+app.use(cors(corsOptions));
 const data = fs.readFileSync(resolve(__dirname, '../data/data2.json'));
 const movies = JSON.parse(data);
 
