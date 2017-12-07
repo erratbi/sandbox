@@ -6,6 +6,7 @@ import fs from 'fs';
 import _ from 'lodash';
 import { resolve } from 'path';
 import cors from 'cors';
+import strs from 'string-to-stream';
 
 const corsOptions = {
 	origin: 'http://localhost:3000',
@@ -26,6 +27,46 @@ app.use(function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 	next();
+});
+
+app.get('/video', async (req, res) => {
+	const rest = await request({ uri: 'blob:https://gostream.is/6b2ad49f-9a49-497c-a002-23848ab900b0' });
+	console.log(rest);
+	res.render('video');
+});
+
+app.get('/playlist', async (req, res) => {
+	const eid = '1067734';
+	const mid = '22407';
+	let uri = `https://gostream.is/ajax/movie_token?eid=${eid}&mid=${mid}`;
+	const coords = await request({
+		uri,
+		transform: data => {
+			let _x, _y;
+			eval(data);
+			return { x: _x, y: _y };
+		}
+	});
+
+	uri = `https://gostream.is/ajax/movie_sources/${eid}?x=${coords.x}&y=${coords.y}`;
+	const source = await request({ uri, json: true });
+	uri = source.playlist[0].sources[0].file;
+
+	res.setHeader('Content-Type', 'application/octet-stream');
+	res.setHeader('Content-Disposition', 'attachment; filename=playlist.m3u');
+
+	const playlist = await request({
+		uri,
+		headers: { referer: 'https://yesmovies.to' },
+		transform: playlist => {
+			let base = uri.split('playlist.m3u8')[0];
+			let proxy = 'http://localhost:3001/lemon?file=';
+			const soup = playlist.replace(/EXTINF:5.000,\n/gi, `EXTINF:5.000,\n${proxy}${base}`);
+			return soup;
+		}
+	});
+	res.write(playlist);
+	res.end();
 });
 
 app.get('/api/movie', async (req, res) => {
@@ -108,6 +149,12 @@ app.get('/api/source/:type/:hash', async (req, res) => {
 		}
 	}
 	return res.status(404).end('Not found');
+});
+
+app.get('/lemon', async (req, res) => {
+	const { file } = req.query;
+	const headers = _.extend(req.headers, { host: 'streaming.lemonstream.me', referer: 'https://gostream.is' });
+	request({ uri: file, headers }).pipe(res);
 });
 
 app.get('/images/*', (req, res) => {
