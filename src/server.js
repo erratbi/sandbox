@@ -20,18 +20,26 @@ app.use(cors(corsOptions));
 const data = fs.readFileSync(resolve(__dirname, '../data/data2.json'));
 const movies = JSON.parse(data);
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 app.use(function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 	next();
 });
 
-app.get('/api/movie', (req, res) => {
-	const list = _.sampleSize(movies, 30);
-	res.json({ movies: list });
+app.get('/api/movie', async (req, res) => {
+	await sleep(1000);
+	res.json({ movies: _.sampleSize(movies, 30) });
 });
 
-app.get('/api/movie/:slug', (req, res) => {
+app.get('/api/recommended/:slug', async (req, res) => {
+	await sleep(1000);
+	res.json({ movies: _.sampleSize(movies, 12) });
+});
+
+app.get('/api/movie/:slug', async (req, res) => {
+	await sleep(1000);
 	const { slug } = req.params;
 	const movie = _.find(movies, { slug });
 	if (!movie || !movie.links) return res.status(404).json({ error: 'Not found' });
